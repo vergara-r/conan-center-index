@@ -1,0 +1,26 @@
+From 49d5748460d59bc58eb52b427a27fc002a981286 Mon Sep 17 00:00:00 2001
+From: vergara-r <124825497+vergara-r@users.noreply.github.com>
+Date: Thu, 9 Nov 2023 11:57:35 +0100
+Subject: [PATCH] Prevent installation of the gdb tool when cross compiling
+ from a windows environment
+
+---
+ glib/meson.build | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/glib/meson.build b/glib/meson.build
+index 5940e6bc3..22ea39808 100644
+--- a/glib/meson.build
++++ b/glib/meson.build
+@@ -522,7 +522,7 @@ meson.add_devenv(env)
+ gdb_conf = configuration_data()
+ gdb_conf.set('datadir', glib_datadir)
+ # This is also used in gobject/meson.build
+-if host_system != 'windows'
++if host_system != 'windows' and build_machine.system() != 'windows'
+   gdb_install = true
+ else
+   # FIXME: Cannot install on Windows because the path will contain a drive
+-- 
+2.21.0.windows.1
+
