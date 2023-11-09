@@ -6,6 +6,7 @@ from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc, is_msvc_static_runtime, msvc_runtime_flag, unix_path
 from conan.tools.scm import Version
+from conan.tools.build import cross_building
 import glob
 import os
 import shutil
@@ -57,7 +58,7 @@ class LibffiConan(ConanFile):
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", default=False, check_type=str):
                 self.tool_requires("msys2/cci.latest")
-        if is_msvc(self):
+        if is_msvc(self) or (cross_building(self) and self._settings_build.os == "Windows"):
             self.tool_requires("automake/1.16.5")
 
     def source(self):
@@ -83,7 +84,7 @@ class LibffiConan(ConanFile):
             tc.extra_defines.append("FFI_BUILDING_DLL")
 
         env = tc.environment()
-        if self._settings_build.os == "Windows" and (is_msvc(self) or self.settings.compiler == "clang"):
+        if not cross_building(self) and self._settings_build.os == "Windows" and (is_msvc(self) or self.settings.compiler == "clang"):
             build = "{}-{}-{}".format(
                 "x86_64" if self._settings_build.arch == "x86_64" else "i686",
                 "pc" if self._settings_build.arch == "x86" else "win64",
