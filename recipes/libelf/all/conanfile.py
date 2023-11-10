@@ -75,10 +75,11 @@ class LibelfConan(ConanFile):
             env = VirtualBuildEnv(self)
             env.generate()
             tc = AutotoolsToolchain(self)
-            tc.configure_args.extend([
-                # it's required, libelf doesnt seem to understand DESTDIR
-                f"--prefix={unix_path(self, self.package_folder)}",
-            ])
+            tc.update_configure_args({
+                "--prefix": unix_path(self, self.package_folder),
+				"--libdir": unix_path(self, os.path.join(self.package_folder, "lib")),
+				"--includedir": unix_path(self, os.path.join(self.package_folder, "include"))
+            })
             tc.generate()
 
     def build(self):
