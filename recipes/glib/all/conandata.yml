@@ -29,9 +29,8 @@ patches:
       patch_type: bugfix
       patch_description: fix libintl discovery
       patch_source: https://gitlab.gnome.org/GNOME/glib/-/merge_requests/3352    
-    - patch_file: "patches/0001-2.76.1-windows-cross-compilation.patch"
+    - patch_file: "patches/0001-windows-cross-compilation.patch"
       patch_type: bugfix
-      patch_description: fix for windows cross compilation
   "2.75.3":
     - patch_file: "patches/libintl-discovery-2.75.3.patch"
       patch_type: bugfix
