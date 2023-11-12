@@ -1,6 +1,6 @@
-From 49d5748460d59bc58eb52b427a27fc002a981286 Mon Sep 17 00:00:00 2001
+From 615a4103262a079f0ced405e1f1393923c25a5e0 Mon Sep 17 00:00:00 2001
 From: vergara-r <124825497+vergara-r@users.noreply.github.com>
-Date: Thu, 9 Nov 2023 11:57:35 +0100
+Date: Sun, 12 Nov 2023 23:25:03 +0100
 Subject: [PATCH] Prevent installation of the gdb tool when cross compiling
  from a windows environment
 
@@ -9,10 +9,10 @@ Subject: [PATCH] Prevent installation of the gdb tool when cross compiling
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/glib/meson.build b/glib/meson.build
-index 5940e6bc3..22ea39808 100644
+index da76fc005..5215ef52c 100644
 --- a/glib/meson.build
 +++ b/glib/meson.build
-@@ -522,7 +522,7 @@ meson.add_devenv(env)
+@@ -511,7 +511,7 @@ meson.add_devenv(env)
  gdb_conf = configuration_data()
  gdb_conf.set('datadir', glib_datadir)
  # This is also used in gobject/meson.build
