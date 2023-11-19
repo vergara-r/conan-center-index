@@ -63,7 +63,7 @@ class GStreamerConan(ConanFile):
             self.tool_requires("pkgconf/1.9.3")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/1.72.0")
-        if self.settings.os == 'Windows':
+        if self.settings_build.get_safe('os') == 'Windows':
             self.tool_requires("winflexbison/2.5.24")
         else:
             self.tool_requires("bison/3.8.2")
