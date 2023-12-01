@@ -6,6 +6,7 @@ from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
 import os
 import shutil
 
@@ -99,8 +100,9 @@ class GLibConan(ConanFile):
         tc.project_options["libmount"] = "enabled" if self.options.get_safe("with_mount") else "disabled"
         if self.settings.os == "FreeBSD":
             tc.project_options["xattr"] = "false"
-        tc.project_options["tests"] = "false"
-        tc.project_options["libelf"] = "enabled" if self.options.get_safe("with_elf") else "disabled"
+        if Version(self.version) < "1.70":
+            tc.project_options["tests"] = "false"
+            tc.project_options["libelf"] = "enabled" if self.options.get_safe("with_elf") else "disabled"
         tc.generate()
 
     def _patch_sources(self):
