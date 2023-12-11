@@ -42,7 +42,7 @@ class GccConan(ConanFile):
         self.requires("mpfr/4.2.0")
         self.requires("gmp/6.3.0")
         self.requires("zlib/1.2.13")
-        self.requires("isl/0.24")
+        #self.requires("isl/0.24")
 
     def package_id(self):
         del self.info.settings.compiler
@@ -84,7 +84,7 @@ class GccConan(ConanFile):
         tc.configure_args.append("--disable-multilib")
         tc.configure_args.append("--disable-bootstrap")
         tc.configure_args.append(f"--with-zlib={self.dependencies['zlib'].package_folder}")
-        tc.configure_args.append(f"--with-isl={self.dependencies['isl'].package_folder}")
+        #tc.configure_args.append(f"--with-isl={self.dependencies['isl'].package_folder}")
         tc.configure_args.append(f"--with-gmp={self.dependencies['gmp'].package_folder}")
         tc.configure_args.append(f"--with-mpc={self.dependencies['mpc'].package_folder}")
         tc.configure_args.append(f"--with-mpfr={self.dependencies['mpfr'].package_folder}")
