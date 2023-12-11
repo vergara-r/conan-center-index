@@ -51,6 +51,12 @@ class LiunwindConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
+    def build_requirements(self):
+        if self.settings_build.get_safe('os') =="Windows" and cross_building(self):
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
+					
     def requirements(self):
         if self.options.minidebuginfo:
             self.requires("xz_utils/5.4.4")
