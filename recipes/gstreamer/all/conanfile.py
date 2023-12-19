@@ -55,7 +55,10 @@ class GStreamerConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
+        if (self.version == "1.18.4"):
+            self.requires("glib/2.66.8", transitive_headers=True, transitive_libs=True)
+        else:
+             self.requires("glib/2.76.3", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if not self.dependencies.direct_host["glib"].options.shared and self.options.shared:
@@ -91,7 +94,7 @@ class GStreamerConan(ConanFile):
         tc = MesonToolchain(self)
         if is_msvc(self) and not check_min_vs(self, "190", raise_invalid=False):
             tc.project_options["c_std"] = "c99"
-        tc.project_options["tools"] = "disabled"
+        tc.project_options["tools"] = "enabled"
         tc.project_options["examples"] = "disabled"
         tc.project_options["benchmarks"] = "disabled"
         tc.project_options["tests"] = "disabled"
