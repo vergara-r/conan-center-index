@@ -66,10 +66,12 @@ class GLibConan(ConanFile):
 
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("libffi/3.4.4")
+        # Patched package stored on remote st-conan-local while waiting PR integration
+        self.requires("libffi/3.4.4#882d90b98c7662255d1fc68a825d1344")
         self.requires("pcre2/10.42")
         if self.options.get_safe("with_elf"):
-            self.requires("libelf/0.8.13")
+            # Patched package stored on remote st-conan-local while waiting PR integration
+            self.requires("libelf/0.8.13#688e1ae58960070faaaaaaaf45020dbd")
         if self.options.get_safe("with_mount"):
             self.requires("libmount/2.39")
         if self.options.get_safe("with_selinux"):
@@ -100,7 +102,7 @@ class GLibConan(ConanFile):
         tc.project_options["libmount"] = "enabled" if self.options.get_safe("with_mount") else "disabled"
         if self.settings.os == "FreeBSD":
             tc.project_options["xattr"] = "false"
-        if Version(self.version) < "1.70":
+        if Version(self.version) >= "2.70":
             tc.project_options["tests"] = "false"
             tc.project_options["libelf"] = "enabled" if self.options.get_safe("with_elf") else "disabled"
         tc.generate()
@@ -114,11 +116,19 @@ class GLibConan(ConanFile):
         )  # https://gitlab.gnome.org/GNOME/glib/-/issues/2152
         if self.settings.os != "Linux":
             # allow to find gettext
-            replace_in_file(self,
-                os.path.join(self.source_folder, "meson.build"),
-                "libintl = dependency('intl', required: false",
-                "libintl = dependency('libgettext', method : 'pkg-config', required : false",
-            )
+            if Version(self.version) < "2.70":
+                # Temporary fix for Windows build: disable libintl (raises link errors)
+                replace_in_file(self,
+                    os.path.join(self.source_folder, "meson.build"),
+                    "libintl = subproject('proxy-libintl').get_variable('intl_dep')",
+                    "libintl = disabler()"
+                    )
+            else:
+                replace_in_file(self,
+                    os.path.join(self.source_folder, "meson.build"),
+                    "libintl = dependency('intl', required: false",
+                    "libintl = dependency('libgettext', method : 'pkg-config', required : false",
+                )
 
         replace_in_file(self,
             os.path.join(
@@ -268,7 +278,7 @@ class GLibConan(ConanFile):
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
-    from conan.tools.files import rename
+    from conan.tools.files import rename, rm
     import glob
     if not conanfile.settings.get_safe("compiler.runtime"):
         return
@@ -280,4 +290,12 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
                 libname = os.path.basename(filepath)[0:-len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
-                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))
+                dst = os.path.join(os.path.dirname(filepath), f"{libname}.lib")
+                try:
+                    rename(conanfile, filepath, dst)
+                except OSError as e:
+                    if e.errno == errno.EEXIST:
+                        rm(conanfile, f"{libname}.lib", filepath)
+                        rename(conanfile, filepath, dst)
+                    else:
+                        raise
