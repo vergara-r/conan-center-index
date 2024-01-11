@@ -26,11 +26,13 @@ class GStreamerConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "with_introspection": [True, False],
+        "qt": [5, 6, None],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_introspection": False,
+        "qt": None,
     }
 
     @property
@@ -58,7 +60,7 @@ class GStreamerConan(ConanFile):
         if (self.version == "1.18.4"):
             self.requires("glib/2.66.8", transitive_headers=True, transitive_libs=True)
         else:
-             self.requires("glib/2.76.3", transitive_headers=True, transitive_libs=True)
+            self.requires("glib/2.76.3", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if not self.dependencies.direct_host["glib"].options.shared and self.options.shared:
@@ -80,6 +82,9 @@ class GStreamerConan(ConanFile):
         else:
             self.tool_requires("bison/3.8.2")
             self.tool_requires("flex/2.6.4")
+        if (self.options.qt != None):
+            self.tool_requires("opengl/system")
+            self.tool_requires("opengl-registry/cci.20220929")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -96,7 +101,24 @@ class GStreamerConan(ConanFile):
             tc.project_options["c_std"] = "c99"
         tc.project_options["tools"] = "enabled"
         tc.project_options["examples"] = "disabled"
-        tc.project_options["benchmarks"] = "disabled"
+        if (self.version < "1.22.5"):
+            tc.project_options["benchmarks"] = "disabled"
+        subproj_opt = ""
+        if (self.options.qt != None):
+            if self.settings.os == "Windows":
+                subproj_opt = "[gst-plugins-base:built-in options]\ngl = 'enabled'\ngl_winsys = 'win32'\n"
+            else:
+                tc.pkg_config_path = f"{tc.pkg_config_path}:/usr/lib/x86_64-linux-gnu/pkgconfig/:/usr/share/pkgconfig/"
+                subproj_opt = "[gst-plugins-base:built-in options]\ngl = 'enabled'\n"
+                if (self.options.qt == 6):
+                    subproj_opt += "[gst-plugins-good:built-in options]\nqt6 = 'enabled'\n"
+            tc._meson_file_template = f"{tc._meson_file_template}{subproj_opt}"
+
+            tc.project_options["bad"] = "disabled"
+            tc.project_options["ugly"] = "disabled"
+            if (self.options.qt == 5):
+                tc.project_options["qt5"] = "enabled"
+
         tc.project_options["tests"] = "disabled"
         tc.project_options["introspection"] = "enabled" if self.options.with_introspection else "disabled"
         tc.generate()
