@@ -50,7 +50,7 @@ class GStreamerConan(ConanFile):
         if (self.version == "1.18.4"):
             self.requires("glib/2.66.8", transitive_headers=True, transitive_libs=True)
         else:
-             self.requires("glib/2.76.3", transitive_headers=True, transitive_libs=True)
+            self.requires("glib/2.76.3", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if not self.dependencies.direct_host["glib"].options.shared and self.info.options.shared:
@@ -76,19 +76,36 @@ class GStreamerConan(ConanFile):
             self.tool_requires("flex/2.6.4")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        #get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        get(self, "file:///local/home/costisth/Downloads/gstreamer-1.22.5.tar", strip_root=True)
 
     def generate(self):
         virtual_build_env = VirtualBuildEnv(self)
         virtual_build_env.generate()
         pkg_config_deps = PkgConfigDeps(self)
         pkg_config_deps.generate()
+        import pdb
         tc = MesonToolchain(self)
         if is_msvc(self) and not check_min_vs(self, "190", raise_invalid=False):
             tc.project_options["c_std"] = "c99"
         tc.project_options["tools"] = "enabled"
         tc.project_options["examples"] = "disabled"
-        tc.project_options["benchmarks"] = "disabled"
+        if (self.version < "1.22.5"):
+            tc.project_options["benchmarks"] = "disabled"
+        else:
+            if self.settings.os == "Windows":
+               tc.pkg_config_path = f"{tc.pkg_config_path}"
+            else:
+               tc.pkg_config_path = f"{tc.pkg_config_path}:/usr/lib/x86_64-linux-gnu/pkgconfig/:/usr/share/pkgconfig/"
+            pdb.set_trace()
+            #tc.project_options["gst-plugins-base:gl"] = "enabled"
+            subproj_opt = "[gst-plugins-base:built-in options]\ngl = 'enabled'\n"
+            tc._meson_file_template = f"{tc._meson_file_template}{subproj_opt}"
+
+            tc.project_options["bad"] = "disabled"
+            tc.project_options["ugly"] = "disabled"
+            tc.project_options["qt5"] = "enabled"
+            #tc.project_options["qt6"] = "enabled"
         tc.project_options["tests"] = "disabled"
         tc.project_options["introspection"] = "enabled" if self.options.with_introspection else "disabled"
         tc.generate()
