@@ -26,11 +26,13 @@ class GStreamerConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "with_introspection": [True, False],
+        "qt_enable": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_introspection": False,
+        "qt_enable": False,
     }
 
     def config_options(self):
@@ -74,10 +76,12 @@ class GStreamerConan(ConanFile):
         else:
             self.tool_requires("bison/3.8.2")
             self.tool_requires("flex/2.6.4")
+        if(self.options.qt_enable):
+            self.requires("opengl/system")
+            self.requires("opengl-registry/cci.20220929")
 
     def source(self):
-        #get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        get(self, "file:///local/home/costisth/Downloads/gstreamer-1.22.5.tar", strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         virtual_build_env = VirtualBuildEnv(self)
@@ -92,14 +96,17 @@ class GStreamerConan(ConanFile):
         tc.project_options["examples"] = "disabled"
         if (self.version < "1.22.5"):
             tc.project_options["benchmarks"] = "disabled"
-        else:
+        if (self.options.qt_enable):
+            subproj_opt = ""
             if self.settings.os == "Windows":
-               tc.pkg_config_path = f"{tc.pkg_config_path}"
+               #pc_path = f"{self.build_folder}/conan"
+               #pc_path = format(pc_path.replace('\\', '/'))
+               #tc.pkg_config_path = f"{pc_path}"
+               #tc.pkg_config_path = format(tc.pkg_config_path.replace('\\', '\\\\'))
+               subproj_opt = "[gst-plugins-base:built-in options]\ngl = 'enabled'\ngl_winsys = 'win32'\n"
             else:
                tc.pkg_config_path = f"{tc.pkg_config_path}:/usr/lib/x86_64-linux-gnu/pkgconfig/:/usr/share/pkgconfig/"
-            pdb.set_trace()
-            #tc.project_options["gst-plugins-base:gl"] = "enabled"
-            subproj_opt = "[gst-plugins-base:built-in options]\ngl = 'enabled'\n"
+               subproj_opt = "[gst-plugins-base:built-in options]\ngl = 'enabled'\n"
             tc._meson_file_template = f"{tc._meson_file_template}{subproj_opt}"
 
             tc.project_options["bad"] = "disabled"
