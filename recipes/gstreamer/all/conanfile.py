@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import chdir, copy, get, rename, rm, rmdir
+from conan.tools.files import chdir, copy, get, rename, rm, rmdir, export_conandata_patches, apply_conandata_patches
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -42,6 +42,9 @@ class GStreamerConan(ConanFile):
     @property
     def _is_legacy_one_profile(self):
         return not hasattr(self, "settings_build")
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == 'Windows':
@@ -111,7 +114,7 @@ class GStreamerConan(ConanFile):
                 tc.pkg_config_path = f"{tc.pkg_config_path}:/usr/lib/x86_64-linux-gnu/pkgconfig/:/usr/share/pkgconfig/"
                 subproj_opt = "[gst-plugins-base:built-in options]\ngl = 'enabled'\n"
                 if (self.options.qt == 6):
-                    subproj_opt += "[gst-plugins-good:built-in options]\nqt6 = 'enabled'\n"
+                    subproj_opt += "[gst-plugins-good:built-in options]\nqt6 = 'enabled'\nv4l2 = 'enabled'\n"
             tc._meson_file_template = f"{tc._meson_file_template}{subproj_opt}"
 
             tc.project_options["bad"] = "disabled"
@@ -123,7 +126,11 @@ class GStreamerConan(ConanFile):
         tc.project_options["introspection"] = "enabled" if self.options.with_introspection else "disabled"
         tc.generate()
 
+    def _patch_sources(self):
+        apply_conandata_patches(self)
+
     def build(self):
+        self._patch_sources()
         meson = Meson(self)
         meson.configure()
         meson.build()
