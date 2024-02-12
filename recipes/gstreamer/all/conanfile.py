@@ -104,7 +104,7 @@ class GStreamerConan(ConanFile):
             tc.project_options["c_std"] = "c99"
         tc.project_options["tools"] = "enabled"
         tc.project_options["examples"] = "disabled"
-        if (self.version < "1.22.5"):
+        if (self.version < "1.22.0"):
             tc.project_options["benchmarks"] = "disabled"
         subproj_opt = ""
         if (self.options.qt != None):

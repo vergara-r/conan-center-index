@@ -5,8 +5,8 @@ sources:
   "1.22.5":
     url: "https://gitlab.freedesktop.org/gstreamer/gstreamer/-/archive/1.22.5/gstreamer-1.22.5.tar.bz2"
   "1.22.3":
-    url: "https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.22.3.tar.xz"
-    sha256: "9ffeab95053f9f6995eb3b3da225e88f21c129cd60da002d3f795db70d6d5974"
+    url: "https://gitlab.freedesktop.org/gstreamer/gstreamer/-/archive/1.22.3/gstreamer-1.22.3.tar.bz2"
+    sha256: "48223b96452e3c2c0e974099733fd765acf45f53025ae2a9236d7752facec6d8"
   "1.20.6":
     url: "https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.20.6.tar.xz"
     sha256: "0545b030960680f71a95f9d39c95daae54b4d317d335e8f239d81138773c9b90"
@@ -32,3 +32,5 @@ sources:
 patches:
   "1.22.5":
     - patch_file: "patches/0001-gst-plugins-good-support-for-raw-12-unpacked.patch"
+  "1.22.3":
+    - patch_file: "patches/0001-gst-plugins-good-support-for-raw-12-unpacked_1.22.3.patch"

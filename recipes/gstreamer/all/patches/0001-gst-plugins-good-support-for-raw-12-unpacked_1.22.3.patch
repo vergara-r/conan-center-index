@@ -1,0 +1,86 @@
+From 563805e2f0a23480e31a6e878acca03b1e1cb715 Mon Sep 17 00:00:00 2001
+From: Thomas Costis <thomas.costis@st.com>
+Date: Thu, 28 Sep 2023 10:42:23 +0200
+Subject: [PATCH] gst-plugins-good: support for raw 12 unpacked
+
+Add support of unpacked bayer 12bits format for v4l2src
+
+Signed-off-by: Thomas Costis <thomas.costis@st.com>
+---
+ .../gst-plugins-good/sys/v4l2/gstv4l2object.c | 32 ++++++++++++++++++-
+ 1 file changed, 31 insertions(+), 1 deletion(-)
+
+diff --git a/subprojects/gst-plugins-good/sys/v4l2/gstv4l2object.c b/subprojects/gst-plugins-good/sys/v4l2/gstv4l2object.c
+index 3888211e36..1f9404d02c 100644
+--- a/subprojects/gst-plugins-good/sys/v4l2/gstv4l2object.c
++++ b/subprojects/gst-plugins-good/sys/v4l2/gstv4l2object.c
+@@ -171,6 +171,10 @@ static const GstV4L2FormatDesc gst_v4l2_formats[] = {
+   {V4L2_PIX_FMT_SGBRG8, TRUE, GST_V4L2_RAW},
+   {V4L2_PIX_FMT_SGRBG8, TRUE, GST_V4L2_RAW},
+   {V4L2_PIX_FMT_SRGGB8, TRUE, GST_V4L2_RAW},
++  {V4L2_PIX_FMT_SBGGR12, TRUE, GST_V4L2_RAW},
++  {V4L2_PIX_FMT_SGBRG12, TRUE, GST_V4L2_RAW},
++  {V4L2_PIX_FMT_SGRBG12, TRUE, GST_V4L2_RAW},
++  {V4L2_PIX_FMT_SRGGB12, TRUE, GST_V4L2_RAW},
+ 
+   /* compressed formats */
+   {V4L2_PIX_FMT_MJPEG, FALSE, GST_V4L2_CODEC},
+@@ -1149,6 +1153,10 @@ gst_v4l2_object_format_get_rank (const struct v4l2_fmtdesc *fmt)
+     case V4L2_PIX_FMT_SGBRG8:
+     case V4L2_PIX_FMT_SGRBG8:
+     case V4L2_PIX_FMT_SRGGB8:
++    case V4L2_PIX_FMT_SBGGR12:
++    case V4L2_PIX_FMT_SGBRG12:
++    case V4L2_PIX_FMT_SGRBG12:
++    case V4L2_PIX_FMT_SRGGB12:
+       rank = BAYER_BASE_RANK;
+       break;
+ 
+@@ -1462,6 +1470,10 @@ gst_v4l2_object_v4l2fourcc_is_rgb (guint32 fourcc)
+     case V4L2_PIX_FMT_SGBRG8:
+     case V4L2_PIX_FMT_SGRBG8:
+     case V4L2_PIX_FMT_SRGGB8:
++    case V4L2_PIX_FMT_SBGGR12:
++    case V4L2_PIX_FMT_SGBRG12:
++    case V4L2_PIX_FMT_SGRBG12:
++    case V4L2_PIX_FMT_SRGGB12:
+       ret = TRUE;
+       break;
+     default:
+@@ -1602,6 +1614,16 @@ gst_v4l2_object_v4l2fourcc_to_bare_struct (guint32 fourcc)
+           fourcc == V4L2_PIX_FMT_SGRBG8 ? "grbg" :
+           /* fourcc == V4L2_PIX_FMT_SRGGB8 ? */ "rggb", NULL);
+       break;
++    case V4L2_PIX_FMT_SBGGR12:
++    case V4L2_PIX_FMT_SGBRG12:
++    case V4L2_PIX_FMT_SGRBG12:
++    case V4L2_PIX_FMT_SRGGB12:
++      structure = gst_structure_new ("video/x-bayer", "format", G_TYPE_STRING,
++          fourcc == V4L2_PIX_FMT_SBGGR12 ? "bggr12" :
++          fourcc == V4L2_PIX_FMT_SGBRG12 ? "gbrg12" :
++          fourcc == V4L2_PIX_FMT_SGRBG12 ? "grbg12" :
++          /* fourcc == V4L2_PIX_FMT_SRGGB12 ? */ "rggb12", NULL);
++      break;
+     case V4L2_PIX_FMT_SN9C10X:
+       structure = gst_structure_new_empty ("video/x-sonix");
+       break;
+@@ -1967,7 +1989,15 @@ gst_v4l2_object_get_caps_info (GstV4l2Object * v4l2object, GstCaps * caps,
+     } else if (g_str_equal (mimetype, "video/x-bayer")) {
+       const gchar *format = gst_structure_get_string (structure, "format");
+       if (format) {
+-        if (!g_ascii_strcasecmp (format, "bggr"))
++        if (!g_ascii_strcasecmp (format, "bggr12"))
++          fourcc = V4L2_PIX_FMT_SBGGR12;
++        else if (!g_ascii_strcasecmp (format, "gbrg12"))
++          fourcc = V4L2_PIX_FMT_SGBRG12;
++        else if (!g_ascii_strcasecmp (format, "grbg12"))
++          fourcc = V4L2_PIX_FMT_SGRBG12;
++        else if (!g_ascii_strcasecmp (format, "rggb12"))
++          fourcc = V4L2_PIX_FMT_SRGGB12;
++        else if (!g_ascii_strcasecmp (format, "bggr"))
+           fourcc = V4L2_PIX_FMT_SBGGR8;
+         else if (!g_ascii_strcasecmp (format, "gbrg"))
+           fourcc = V4L2_PIX_FMT_SGBRG8;
+-- 
+2.25.1
+
