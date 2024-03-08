@@ -30,6 +30,8 @@ sources:
     url: "https://gitlab.freedesktop.org/gstreamer/gstreamer/-/archive/1.16.2/gstreamer-1.16.2.tar.bz2"
 
 patches:
+  "1.22.6":
+    - patch_file: "patches/0001-gst-plugins-good-support-for-raw-12-unpacked.patch"
   "1.22.5":
     - patch_file: "patches/0001-gst-plugins-good-support-for-raw-12-unpacked.patch"
   "1.22.3":

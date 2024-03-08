@@ -109,7 +109,8 @@ class GStreamerConan(ConanFile):
         subproj_opt = ""
         if (self.options.qt != None):
             if self.settings.os == "Windows":
-                subproj_opt = "[gst-plugins-base:built-in options]\ngl = 'enabled'\ngl_winsys = 'win32'\n"
+                tc.project_options["tools"] = "disabled"
+                subproj_opt = "\n[gst-plugins-base:built-in options]\ngl = 'enabled'\ngl_winsys = 'win32'\ngl_platform = 'wgl'\n"
             else:
                 tc.pkg_config_path = f"{tc.pkg_config_path}:/usr/lib/x86_64-linux-gnu/pkgconfig/:/usr/share/pkgconfig/"
                 subproj_opt = "[gst-plugins-base:built-in options]\ngl = 'enabled'\n"
@@ -142,6 +143,8 @@ class GStreamerConan(ConanFile):
                 for filename_old in glob.glob("*.a"):
                     filename_new = filename_old[3:-2] + ".lib"
                     self.output.info(f"rename {filename_old} into {filename_new}")
+                    if (os.path.exists(filename_new)):
+                        rm(self, filename_new, path, False)
                     rename(self, filename_old, filename_new)
 
     def package(self):

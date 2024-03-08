@@ -1,0 +1,4 @@
+# ninja backend generates "gstreamer-full-1.0.dll.rsp : fatal error LNK1170: line in command file contains 131071 or more characters"
+# needs "in_newline" option
+[conf]
+tools.meson.mesontoolchain:backend = vs2022
