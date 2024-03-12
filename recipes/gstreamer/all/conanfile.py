@@ -110,9 +110,9 @@ class GStreamerConan(ConanFile):
         if (self.options.qt != None):
             # ninja backend generates "gstreamer-full-1.0.dll.rsp : fatal error LNK1170: line in command file contains 131071 or more characters"
             # needs "in_newline" option
-            tc._backend = "vs2022"
+            #tc._backend = "vs2022"
             if self.settings.os == "Windows":
-                tc.project_options["tools"] = "disabled"
+                #tc.project_options["tools"] = "disabled"
                 subproj_opt = "\n[gst-plugins-base:built-in options]\ngl = 'enabled'\ngl_winsys = 'win32'\ngl_platform = 'wgl'\n"
             else:
                 tc.pkg_config_path = f"{tc.pkg_config_path}:/usr/lib/x86_64-linux-gnu/pkgconfig/:/usr/share/pkgconfig/"
