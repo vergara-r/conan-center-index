@@ -224,6 +224,21 @@ class GStreamerConan(ConanFile):
             self.cpp_info.components["gstreamer-check-1.0"].system_libs = ["rt", "m"]
         self.cpp_info.components["gstreamer-check-1.0"].set_property("pkg_config_custom_content", pkgconfig_custom_content)
 
+        if (self.options.qt != None):
+            self.cpp_info.components["gstreamer-video-1.0"].set_property("pkg_config_name", "gstreamer-video-1.0")
+            self.cpp_info.components["gstreamer-video-1.0"].names["pkg_config"] = "gstreamer-video-1.0"
+            self.cpp_info.components["gstreamer-video-1.0"].requires = ["gstreamer-1.0"]
+            self.cpp_info.components["gstreamer-video-1.0"].libs = ["gstvideo-1.0"]
+            self.cpp_info.components["gstreamer-video-1.0"].includedirs = [os.path.join("include", "gstreamer-1.0")]
+            self.cpp_info.components["gstreamer-video-1.0"].set_property("pkg_config_custom_content", pkgconfig_custom_content)
+
+            self.cpp_info.components["gstreamer-gl-1.0"].set_property("pkg_config_name", "gstreamer-gl-1.0")
+            self.cpp_info.components["gstreamer-gl-1.0"].names["pkg_config"] = "gstreamer-gl-1.0"
+            self.cpp_info.components["gstreamer-gl-1.0"].requires = ["gstreamer-1.0"]
+            self.cpp_info.components["gstreamer-gl-1.0"].libs = ["gstgl-1.0"]
+            self.cpp_info.components["gstreamer-gl-1.0"].includedirs = [os.path.join("include", "gstreamer-1.0")]
+            self.cpp_info.components["gstreamer-gl-1.0"].set_property("pkg_config_custom_content", pkgconfig_custom_content)
+
         # gstcoreelements and gstcoretracers are plugins which should be loaded dynamicaly, and not linked to directly
         if not self.options.shared:
             self.cpp_info.components["gstcoreelements"].set_property("pkg_config_name", "gstcoreelements")
