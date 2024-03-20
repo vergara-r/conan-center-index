@@ -88,6 +88,10 @@ class GStreamerConan(ConanFile):
         if (self.options.qt != None):
             self.tool_requires("opengl/system")
             self.tool_requires("opengl-registry/cci.20220929")
+            if (self.options.qt == 6):
+                self.tool_requires("qt/6.6.2")
+            elif (self.options.qt == 5):
+                self.tool_requires("qt/5.15.11")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -113,10 +117,12 @@ class GStreamerConan(ConanFile):
             #tc._backend = "vs2022"
             if self.settings.os == "Windows":
                 #tc.project_options["tools"] = "disabled"
-                subproj_opt = "\n[gst-plugins-base:built-in options]\ngl = 'enabled'\ngl_winsys = 'win32'\ngl_platform = 'wgl'\n"
+                subproj_opt = "\n[gst-plugins-base:built-in options]\nrawparse = 'enabled'\ngl = 'enabled'\ngl_winsys = 'win32'\ngl_platform = 'wgl'\n"
+                if (self.options.qt == 6):
+                    subproj_opt += "[gst-plugins-good:built-in options]\nqt6 = 'enabled'\n"
             else:
                 tc.pkg_config_path = f"{tc.pkg_config_path}:/usr/lib/x86_64-linux-gnu/pkgconfig/:/usr/share/pkgconfig/"
-                subproj_opt = "[gst-plugins-base:built-in options]\ngl = 'enabled'\n"
+                subproj_opt = "[gst-plugins-base:built-in options]\nrawparse = 'enabled'\ngl = 'enabled'\n"
                 if (self.options.qt == 6):
                     subproj_opt += "[gst-plugins-good:built-in options]\nqt6 = 'enabled'\nv4l2 = 'enabled'\n"
             tc._meson_file_template = f"{tc._meson_file_template}{subproj_opt}"
