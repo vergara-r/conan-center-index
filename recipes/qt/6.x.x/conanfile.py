@@ -81,7 +81,7 @@ class QtConan(ConanFile):
     no_copy_source = True
 
     default_options = {
-        "shared": False,
+        "shared": True,
         "opengl": "desktop",
         "with_vulkan": False,
         "openssl": True,
@@ -103,13 +103,16 @@ class QtConan(ConanFile):
         "with_dbus": False,
         "with_libalsa": False,
         "with_openal": True,
-        "with_gstreamer": False,
+        "with_gstreamer": True,
         "with_pulseaudio": False,
         "with_gssapi": False,
         "with_md4c": True,
         "with_x11": True,
         "with_egl": False,
 
+        "qttools": True,
+        "qtdeclarative": True,
+        "qtshadertools": True,
         "gui": True,
         "widgets": True,
 
