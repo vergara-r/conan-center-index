@@ -29,7 +29,7 @@ class GStreamerConan(ConanFile):
         "qt": [5, 6, None],
     }
     default_options = {
-        "shared": False,
+        "shared": True,
         "fPIC": True,
         "with_introspection": False,
         "qt": 6,
