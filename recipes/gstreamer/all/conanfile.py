@@ -66,7 +66,7 @@ class GStreamerConan(ConanFile):
             self.requires("glib/2.76.3", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if not self.dependencies.direct_host["glib"].options.shared and self.options.shared:
+        if self.settings.os != 'Linux' and not self.dependencies.direct_host["glib"].options.shared and self.options.shared:
             # https://gitlab.freedesktop.org/gstreamer/gst-build/-/issues/133
             raise ConanInvalidConfiguration("shared GStreamer cannot link to static GLib")
 
@@ -121,14 +121,17 @@ class GStreamerConan(ConanFile):
                 if (self.options.qt == 6):
                     subproj_opt += "[gst-plugins-good:built-in options]\nqt6 = 'enabled'\n"
             else:
-                tc.pkg_config_path = f"{tc.pkg_config_path}:/usr/lib/x86_64-linux-gnu/pkgconfig/:/usr/share/pkgconfig/"
+                qt_dir = self.dependencies.direct_build["qt"].package_folder
+                qt_dir += "/../b/build/Release"
+                tc.pkg_config_path = f"{tc.pkg_config_path}:{qt_dir}/generators:{qt_dir}/qtbase/lib/pkgconfig"
                 subproj_opt = "[gst-plugins-base:built-in options]\nrawparse = 'enabled'\ngl = 'enabled'\n"
                 if (self.options.qt == 6):
                     subproj_opt += "[gst-plugins-good:built-in options]\nqt6 = 'enabled'\nv4l2 = 'enabled'\n"
             tc._meson_file_template = f"{tc._meson_file_template}{subproj_opt}"
 
-            tc.project_options["bad"] = "disabled"
-            tc.project_options["ugly"] = "disabled"
+            if (self.version >= "1.19.0"):
+                tc.project_options["bad"] = "disabled"
+                tc.project_options["ugly"] = "disabled"
             if (self.options.qt == 5):
                 tc.project_options["qt5"] = "enabled"
 
