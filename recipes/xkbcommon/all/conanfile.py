@@ -34,7 +34,7 @@ class XkbcommonConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "with_x11": True,
-        "with_wayland": True,
+        "with_wayland": False,
         "xkbregistry": True,
     }
 
