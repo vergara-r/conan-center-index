@@ -1,0 +1,20 @@
+--- meson.build.orig	2024-04-04 13:04:05.953539550 +0200
++++ meson.build	2024-04-04 13:15:49.986190370 +0200
+@@ -1925,6 +1925,7 @@
+ # proxy-libintl subproject.
+ # FIXME: glib-gettext.m4 has much more checks to detect broken/uncompatible
+ # implementations. This could be extended if issues are found in some platforms.
++libintl_prefix = '#include <libintl.h>'
+ if cc.has_function('ngettext')
+   libintl = []
+   have_bind_textdomain_codeset = cc.has_function('bind_textdomain_codeset')
+@@ -1935,7 +1936,8 @@
+     have_bind_textdomain_codeset = true  # proxy-libintl supports it
+   else
+     have_bind_textdomain_codeset = cc.has_function('bind_textdomain_codeset',
+-                                                   dependencies : libintl)
++                                                   dependencies : libintl,
++                                                   prefix: libintl_prefix)
+   endif
+ endif
+ 

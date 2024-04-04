@@ -29,6 +29,9 @@ sources:
   "2.66.8":
     url: "https://download.gnome.org/sources/glib/2.66/glib-2.66.8.tar.xz"
     sha256: "97bc87dd91365589af5cbbfea2574833aea7a1b71840fd365ecd2852c76b9c8b"
+  "2.64.6":
+    url: "https://download.gnome.org/sources/glib/2.64/glib-2.64.6.tar.xz"
+    sha256: "c36ee07a70164c71f046016fe6aaacd6368333c42590bc0cba47c344ffb853f1"
 
 patches:
   "2.76.3":
@@ -49,5 +52,13 @@ patches:
       patch_description: fix libintl discovery
       patch_source: https://gitlab.gnome.org/GNOME/glib/-/merge_requests/3352
     - patch_file: "patches/fix_atomic_compare_and_exchange-2.66.8.patch"
+      patch_type: bugfix
+      patch_description: Fix the atomic compare_and_exchange macros
+  "2.64.6":
+    - patch_file: "patches/libintl-discovery-2.64.6.patch"
+      patch_type: bugfix
+      patch_description: fix libintl discovery
+      patch_source: https://gitlab.gnome.org/GNOME/glib/-/merge_requests/3352
+    - patch_file: "patches/fix_atomic_compare_and_exchange-2.64.6.patch"
       patch_type: bugfix
       patch_description: Fix the atomic compare_and_exchange macros
