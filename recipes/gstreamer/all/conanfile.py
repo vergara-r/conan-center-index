@@ -64,6 +64,9 @@ class GStreamerConan(ConanFile):
             self.requires("glib/2.66.8", transitive_headers=True, transitive_libs=True)
         else:
             self.requires("glib/2.76.3", transitive_headers=True, transitive_libs=True)
+        if (self.options.qt != None):
+            # Needed for windows build
+            self.requires("libpng/1.6.43")
 
     def validate(self):
         if self.settings.os != 'Linux' and not self.dependencies.direct_host["glib"].options.shared and self.options.shared:
@@ -119,14 +122,14 @@ class GStreamerConan(ConanFile):
                 #tc.project_options["tools"] = "disabled"
                 subproj_opt = "\n[gst-plugins-base:built-in options]\nrawparse = 'enabled'\ngl = 'enabled'\ngl_winsys = 'win32'\ngl_platform = 'wgl'\n"
                 if (self.options.qt == 6):
-                    subproj_opt += "[gst-plugins-good:built-in options]\nqt6 = 'enabled'\n"
+                    subproj_opt += "[gst-plugins-good:built-in options]\nqt6 = 'enabled'\npng = 'enabled'\n"
             else:
                 qt_dir = self.dependencies.direct_build["qt"].package_folder
                 qt_dir += "/../b/build/Release"
                 tc.pkg_config_path = f"{tc.pkg_config_path}:{qt_dir}/generators:{qt_dir}/qtbase/lib/pkgconfig"
                 subproj_opt = "[gst-plugins-base:built-in options]\nrawparse = 'enabled'\ngl = 'enabled'\n"
                 if (self.options.qt == 6):
-                    subproj_opt += "[gst-plugins-good:built-in options]\nqt6 = 'enabled'\nv4l2 = 'enabled'\n"
+                    subproj_opt += "[gst-plugins-good:built-in options]\nqt6 = 'enabled'\nv4l2 = 'enabled'\npng = 'enabled'\n"
             tc._meson_file_template = f"{tc._meson_file_template}{subproj_opt}"
 
             if (self.version >= "1.19.0"):
@@ -243,7 +246,7 @@ class GStreamerConan(ConanFile):
 
             self.cpp_info.components["gstreamer-gl-1.0"].set_property("pkg_config_name", "gstreamer-gl-1.0")
             self.cpp_info.components["gstreamer-gl-1.0"].names["pkg_config"] = "gstreamer-gl-1.0"
-            self.cpp_info.components["gstreamer-gl-1.0"].requires = ["gstreamer-1.0"]
+            self.cpp_info.components["gstreamer-gl-1.0"].requires = ["gstreamer-1.0", "libpng::libpng"]
             self.cpp_info.components["gstreamer-gl-1.0"].libs = ["gstgl-1.0"]
             self.cpp_info.components["gstreamer-gl-1.0"].includedirs = [os.path.join("include", "gstreamer-1.0")]
             self.cpp_info.components["gstreamer-gl-1.0"].set_property("pkg_config_custom_content", pkgconfig_custom_content)
